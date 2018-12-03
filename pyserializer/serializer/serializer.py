@@ -43,7 +43,7 @@ class BaseSerializer:
             return False
 
     @classmethod
-    def _add_not_exists_error_info(cls, _output, _errors, many):
+    def _add_not_exists_error_info(cls, _output, _errors):
         """
         Add errors info to _output
         :param _output:
@@ -51,10 +51,7 @@ class BaseSerializer:
         :param many:
         :return: _output with errors info
         """
-        if many:
-            _output.append({'errors': {tuple(_errors): 'Does not exists!'} if _errors else ''})
-        else:
-            _output.update({'errors': {tuple(_errors): 'Does not exists!'} if _errors else ''})
+        _output.append({'errors': {tuple(_errors): 'Does not exists!'} if _errors else ''})
 
     @classmethod
     def _serialize_many(cls, obj, _fields: set) -> list:
@@ -79,11 +76,11 @@ class BaseSerializer:
                 _data, _errors = cls._get_dict_by_field(obj, _fields)
                 _output[ind] = _data
 
-            cls._add_not_exists_error_info(_output, _errors, many=True)
+            cls._add_not_exists_error_info(_output, _errors)
             return _output
 
     @classmethod
-    def _serialize_one(cls, obj, _fields: set) -> dict:
+    def _serialize_one(cls, obj, _fields: set) -> list:
         """
         Serializes one obj
         :param obj:
@@ -95,11 +92,10 @@ class BaseSerializer:
         except AttributeError:
             raise ManyError
 
-        if _fields:
-            _output, _errors = cls._get_dict_by_field(_data, _fields)
-            cls._add_not_exists_error_info(_output, _errors, many=False)
-            return _output
-        return _data
+        _output, _errors = cls._get_dict_by_field(_data, _fields)
+        _output = [_output]
+        cls._add_not_exists_error_info(_output, _errors)
+        return _output
 
     @classmethod
     def serialize(cls, obj, many=False, fields=None) -> list:
@@ -115,4 +111,4 @@ class BaseSerializer:
 
         if many:
             return cls._serialize_many(obj, _fields)
-        return [cls._serialize_one(obj, _fields)]
+        return cls._serialize_one(obj, _fields)
