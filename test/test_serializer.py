@@ -2,17 +2,31 @@ from pyserializer.serializer.serializer import BaseSerializer
 
 
 class MySerializerAllFields(BaseSerializer):
-    fields = ['name', 'des']
+    name = str
+    des = str
 
 
 class MySerializerOnlyName(BaseSerializer):
-    fields = ['name']
+    name = str
 
 
 class MySerializerErrorField(BaseSerializer):
-    fields = ['name', 'error_field']
+    name = str
+    error_field = str
+
+
+class MySerializerWrongType(BaseSerializer):
+    name = int
+    des = str
+
+
+class MySerializerWrongTypeExtraField(BaseSerializer):
+    name = int
+    error_field = str
 
 
 serializer_all_fields = MySerializerAllFields()
 serializer_only_name = MySerializerOnlyName()
 serializer_error_field = MySerializerErrorField()
+serializer_wrong_type = MySerializerWrongType()
+serializer_wrong_type_extra_field = MySerializerWrongTypeExtraField()
