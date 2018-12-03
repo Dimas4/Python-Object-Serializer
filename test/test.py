@@ -12,7 +12,7 @@ class TestSerializer(unittest.TestCase):
 
     def test_one_all_fields(self):
         data = serializer_all_fields.serialize(self.base)
-        self.assertEqual(data, [{'name': 'name', 'des': 'des', 'errors': ''}])
+        self.assertEqual(data, [{'name': 'name', 'des': 'des'}, {'errors': ''}])
 
     def test_many_all_fields(self):
         data = serializer_all_fields.serialize([self.base, self.base], many=True)
@@ -28,7 +28,7 @@ class TestSerializer(unittest.TestCase):
 
     def test_one_only_name(self):
         data = serializer_only_name.serialize(self.base)
-        self.assertEqual(data, [{'name': 'name', 'errors': ''}])
+        self.assertEqual(data, [{'name': 'name'}, {'errors': ''}])
 
     def test_many_only_name(self):
         data = serializer_only_name.serialize([self.base, self.base], many=True)
@@ -44,7 +44,7 @@ class TestSerializer(unittest.TestCase):
 
     def test_one_error_field(self):
         data = serializer_error_field.serialize(self.base)
-        self.assertEqual(data, [{'name': 'name', 'errors': {('error_field',): 'Does not exists!'}}])
+        self.assertEqual(data, [{'name': 'name'}, {'errors': {('error_field',): 'Does not exists!'}}])
 
     def test_many_error_field(self):
         data = serializer_error_field.serialize([self.base, self.base], many=True)
