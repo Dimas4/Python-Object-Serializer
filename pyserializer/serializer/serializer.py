@@ -101,7 +101,8 @@ class BaseSerializer:
             raise ManyError
 
         _output, _errors_extra_fields, _errors_wrong_type_fields = cls._get_obj_fields_and_errors(_data, _fields)
-        cls._add_error_info(_output, _errors_extra_fields, _errors_wrong_type_fields)
+        cls._add_error_info(_output, extra_fields=(_errors_extra_fields, 'Does not exists!'),
+                            wrong_type=(_errors_wrong_type_fields, 'Wrong type!'))
         return _output
 
     @classmethod
