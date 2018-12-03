@@ -12,7 +12,7 @@ class BaseSerializer:
         return obj.__dict__
 
     @staticmethod
-    def _get_dict_by_field(obj, _fields: set) -> tuple:
+    def _get_dict_by_field(obj, _fields) -> tuple:
         """
         Gets all the specific fields of an obj
         :param obj:
@@ -20,14 +20,18 @@ class BaseSerializer:
         :return: The specific fields of an obj
         """
         _errors_fields_set = set()
+        _wrong_type_set = set()
         _output = {}
         for key, value in obj.items():
             if key in _fields:
                 _errors_fields_set.add(key)
                 _output[key] = value
+                if isinstance(value, _fields[key]):
+                    _wrong_type_set.add(key)
 
-        _errors = _fields - _errors_fields_set
-        return _output, _errors
+        _errors_extra_fields = set(_fields) - _errors_fields_set
+        _errors_wrong_type_fields = set(_fields) -_wrong_type_set - _errors_extra_fields
+        return _output, _errors_extra_fields, _errors_wrong_type_fields
 
     @staticmethod
     def _is_iter(obj) -> bool:
@@ -43,7 +47,7 @@ class BaseSerializer:
             return False
 
     @classmethod
-    def _add_not_exists_error_info(cls, _output, _errors):
+    def _add_not_exists_error_info(cls, _output, _errors_extra_fields, _errors_wrong_type_fields):
         """
         Add errors info to _output
         :param _output:
@@ -51,7 +55,11 @@ class BaseSerializer:
         :param many:
         :return: _output with errors info
         """
-        _output.append({'errors': {tuple(_errors): 'Does not exists!'} if _errors else ''})
+        _output.append({'errors': {}})
+        if _errors_extra_fields:
+            _output[-1]['errors']['extra_fields'] = {tuple(_errors_extra_fields): 'Does not exists!'}
+        if _errors_wrong_type_fields:
+            _output[-1]['errors']['wrong_type'] = {tuple(_errors_wrong_type_fields): 'Wrong type!'}
 
     @classmethod
     def _serialize_many(cls, obj, _fields: set) -> list:
@@ -73,10 +81,10 @@ class BaseSerializer:
             _output = []
             for ind, obj in enumerate(_data):
                 _output.append({})
-                _data, _errors = cls._get_dict_by_field(obj, _fields)
+                _data, _errors_extra_fields, _errors_wrong_type_fields = cls._get_dict_by_field(obj, _fields)
                 _output[ind] = _data
 
-            cls._add_not_exists_error_info(_output, _errors)
+            cls._add_not_exists_error_info(_output, _errors_extra_fields, _errors_wrong_type_fields)
             return _output
 
     @classmethod
@@ -92,9 +100,9 @@ class BaseSerializer:
         except AttributeError:
             raise ManyError
 
-        _output, _errors = cls._get_dict_by_field(_data, _fields)
+        _output, _errors_extra_fields, _errors_wrong_type_fields = cls._get_dict_by_field(_data, _fields)
         _output = [_output]
-        cls._add_not_exists_error_info(_output, _errors)
+        cls._add_not_exists_error_info(_output, _errors_extra_fields, _errors_wrong_type_fields)
         return _output
 
     @classmethod
@@ -107,7 +115,16 @@ class BaseSerializer:
         :return: Serialized obj or array of objs
         """
 
-        _fields = set(fields) if fields else (set(cls.fields) if cls.fields else None)
+        if fields:
+            _fields = set(fields)
+        elif len(dict(cls.__dict__)) > 2:
+            cls_fields = dict(cls.__dict__)
+            del cls_fields['__doc__']
+            del cls_fields['__module__']
+
+            _fields = cls_fields
+        else:
+            _fields = None
 
         if many:
             return cls._serialize_many(obj, _fields)
