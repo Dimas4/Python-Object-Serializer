@@ -25,7 +25,7 @@ class BaseSerializer:
 
         for key, value in obj.items():
             if key in _fields:
-                if not isinstance(value, _fields[key]):
+                if not isinstance(_fields[key], type) or not isinstance(value, _fields[key]):
                     _obj_wrong_type_fields.add(key)
                     continue
 
@@ -48,7 +48,7 @@ class BaseSerializer:
             return False
 
     @classmethod
-    def _add_error_info(cls, _output: dict, _errors_extra_fields: set, _errors_wrong_type_fields: set) -> None:
+    def _add_error_info(cls, _output: dict, **kwargs) -> None:
         """
         Add errors info to _output
         :param _output:
@@ -57,10 +57,9 @@ class BaseSerializer:
         :return: _output with errors info
         """
         _output['errors'] = {}
-        if _errors_extra_fields:
-            _output['errors'].update({'extra_fields': {tuple(_errors_extra_fields): 'Does not exists!'}})
-        if _errors_wrong_type_fields:
-            _output['errors'].update({'wrong_type': {tuple(_errors_wrong_type_fields): 'Wrong type!'}})
+        for key, value in kwargs.items():
+            if value[0]:
+                _output['errors'].update({key: {tuple(value[0]): value[1]}})
 
     @classmethod
     def _serialize_many(cls, obj, _fields: dict) -> list:
@@ -84,7 +83,8 @@ class BaseSerializer:
                 _output.append({})
                 _data, _errors_extra_fields, _errors_wrong_type_fields = cls._get_obj_fields_and_errors(obj, _fields)
                 _output[ind] = _data
-                cls._add_error_info(_output[ind], _errors_extra_fields, _errors_wrong_type_fields)
+                cls._add_error_info(_output[ind], extra_fields=(_errors_extra_fields, 'Does not exists!'),
+                                    wrong_type=(_errors_wrong_type_fields, 'Wrong type!'))
             return _output
 
     @classmethod
