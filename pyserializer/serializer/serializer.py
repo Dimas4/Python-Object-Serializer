@@ -19,19 +19,18 @@ class BaseSerializer:
         :param _fields:
         :return: The specific fields of an obj
         """
-        _errors_fields_set = set()
-        _wrong_type_set = set()
+        _object_field_set = set(obj)
+        _obj_wrong_type_fields = set()
         _output = {}
+
         for key, value in obj.items():
             if key in _fields:
-                _errors_fields_set.add(key)
                 _output[key] = value
-                if isinstance(value, _fields[key]):
-                    _wrong_type_set.add(key)
+                if not isinstance(value, _fields[key]):
+                    _obj_wrong_type_fields.add(key)
 
-        _errors_extra_fields = set(_fields) - _errors_fields_set
-        _errors_wrong_type_fields = set(_fields) -_wrong_type_set - _errors_extra_fields
-        return _output, _errors_extra_fields, _errors_wrong_type_fields
+        _errors_extra_fields = set(_fields) - _object_field_set
+        return _output, _errors_extra_fields, _obj_wrong_type_fields
 
     @staticmethod
     def _is_iter(obj) -> bool:
