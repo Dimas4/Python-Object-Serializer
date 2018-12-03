@@ -12,7 +12,7 @@ class BaseSerializer:
         return obj.__dict__
 
     @staticmethod
-    def _get_obj_fields_and_errors(obj, _fields) -> tuple:
+    def _get_obj_fields_and_errors(obj, _fields: dict) -> tuple:
         """
         Gets all the specific fields of an obj
         :param obj:
@@ -25,9 +25,11 @@ class BaseSerializer:
 
         for key, value in obj.items():
             if key in _fields:
-                _output[key] = value
                 if not isinstance(value, _fields[key]):
                     _obj_wrong_type_fields.add(key)
+                    continue
+
+                _output[key] = value
 
         _errors_extra_fields = set(_fields) - _object_field_set
         return _output, _errors_extra_fields, _obj_wrong_type_fields
@@ -46,7 +48,7 @@ class BaseSerializer:
             return False
 
     @classmethod
-    def _add_error_info(cls, _output, _errors_extra_fields, _errors_wrong_type_fields):
+    def _add_error_info(cls, _output: dict, _errors_extra_fields: set, _errors_wrong_type_fields: set) -> None:
         """
         Add errors info to _output
         :param _output:
@@ -61,7 +63,7 @@ class BaseSerializer:
             _output['errors'].update({'wrong_type': {tuple(_errors_wrong_type_fields): 'Wrong type!'}})
 
     @classmethod
-    def _serialize_many(cls, obj, _fields: set) -> list:
+    def _serialize_many(cls, obj, _fields: dict) -> list:
         """
         Serializes array of objs
         :param obj:
@@ -86,7 +88,7 @@ class BaseSerializer:
             return _output
 
     @classmethod
-    def _serialize_one(cls, obj, _fields: set) -> list:
+    def _serialize_one(cls, obj, _fields: dict) -> list:
         """
         Serializes one obj
         :param obj:
@@ -114,7 +116,7 @@ class BaseSerializer:
 
         if fields:
             _fields = set(fields)
-        elif len(dict(cls.__dict__)) > 2:
+        elif len(cls.__dict__) > 2:
             cls_fields = dict(cls.__dict__)
             del cls_fields['__doc__']
             del cls_fields['__module__']

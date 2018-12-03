@@ -11,4 +11,4 @@ base1 = Base('hi', 'q')
 
 base_serializer = MySerializer()
 
-print(base_serializer.serialize(base1))
+print(base_serializer.serialize([base1, base1], many=True))
