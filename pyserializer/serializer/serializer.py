@@ -12,7 +12,7 @@ class BaseSerializer:
         return obj.__dict__
 
     @staticmethod
-    def _get_dict_by_field(obj, _fields) -> tuple:
+    def _get_obj_fields_and_errors(obj, _fields) -> tuple:
         """
         Gets all the specific fields of an obj
         :param obj:
@@ -46,19 +46,19 @@ class BaseSerializer:
             return False
 
     @classmethod
-    def _add_not_exists_error_info(cls, _output, _errors_extra_fields, _errors_wrong_type_fields):
+    def _add_error_info(cls, _output, _errors_extra_fields, _errors_wrong_type_fields):
         """
         Add errors info to _output
         :param _output:
-        :param _errors:
-        :param many:
+        :param _errors_extra_fields:
+        :param _errors_wrong_type_fields:
         :return: _output with errors info
         """
-        _output.append({'errors': {}})
+        _output['errors'] = {}
         if _errors_extra_fields:
-            _output[-1]['errors']['extra_fields'] = {tuple(_errors_extra_fields): 'Does not exists!'}
+            _output['errors'].update({'extra_fields': {tuple(_errors_extra_fields): 'Does not exists!'}})
         if _errors_wrong_type_fields:
-            _output[-1]['errors']['wrong_type'] = {tuple(_errors_wrong_type_fields): 'Wrong type!'}
+            _output['errors'].update({'wrong_type': {tuple(_errors_wrong_type_fields): 'Wrong type!'}})
 
     @classmethod
     def _serialize_many(cls, obj, _fields: set) -> list:
@@ -80,10 +80,9 @@ class BaseSerializer:
             _output = []
             for ind, obj in enumerate(_data):
                 _output.append({})
-                _data, _errors_extra_fields, _errors_wrong_type_fields = cls._get_dict_by_field(obj, _fields)
+                _data, _errors_extra_fields, _errors_wrong_type_fields = cls._get_obj_fields_and_errors(obj, _fields)
                 _output[ind] = _data
-
-            cls._add_not_exists_error_info(_output, _errors_extra_fields, _errors_wrong_type_fields)
+                cls._add_error_info(_output[ind], _errors_extra_fields, _errors_wrong_type_fields)
             return _output
 
     @classmethod
@@ -99,9 +98,8 @@ class BaseSerializer:
         except AttributeError:
             raise ManyError
 
-        _output, _errors_extra_fields, _errors_wrong_type_fields = cls._get_dict_by_field(_data, _fields)
-        _output = [_output]
-        cls._add_not_exists_error_info(_output, _errors_extra_fields, _errors_wrong_type_fields)
+        _output, _errors_extra_fields, _errors_wrong_type_fields = cls._get_obj_fields_and_errors(_data, _fields)
+        cls._add_error_info(_output, _errors_extra_fields, _errors_wrong_type_fields)
         return _output
 
     @classmethod
