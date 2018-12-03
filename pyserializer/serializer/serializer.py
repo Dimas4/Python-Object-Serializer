@@ -1,6 +1,4 @@
-from app.model.model import Base
-
-from utils.serializer.exception.exception import ManyError
+from pyserializer.exception.exception import ManyError
 
 
 class BaseSerializer:
@@ -118,16 +116,3 @@ class BaseSerializer:
         if many:
             return cls._serialize_many(obj, _fields)
         return [cls._serialize_one(obj, _fields)]
-
-
-class MySerializer(BaseSerializer):
-    fields = ['name', 'des']
-
-
-base1 = Base('hi', 'q')
-base2 = Base('h', 'z')
-base3 = Base('f', 'v')
-
-base_serializer = MySerializer()
-print(base_serializer.serialize(base1))
-print(base_serializer.serialize([base1, base2], many=True, fields=['des']))

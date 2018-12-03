@@ -1,0 +1,2 @@
+class ManyError(Exception):
+    pass
