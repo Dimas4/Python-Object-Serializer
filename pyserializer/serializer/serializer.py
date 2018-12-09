@@ -21,18 +21,29 @@ class BaseSerializer:
         """
         _object_field_set = set(obj)
         _obj_wrong_type_fields = set()
+        _obj_wrong_params_field = [{} for _ in range(len(obj))]
         _output = {}
 
-        for key, value in obj.items():
+        for ind, (key, value) in enumerate(obj.items()):
             if key in _fields:
-                if not isinstance(_fields[key], type) or not isinstance(value, _fields[key]):
+                if not isinstance(_fields[key].type, type) or not isinstance(value, _fields[key].type):
                     _obj_wrong_type_fields.add(key)
                     continue
+
+                if hasattr(_fields[key], 'max_length') and _fields[key].max_length:
+                    __length = _fields[key].max_length
+                    if len(value) > __length:
+                        _obj_wrong_params_field[ind]['max_length'] = f'Must be less then {__length}'
+
+                if hasattr(_fields[key], 'min_length') and _fields[key].min_length:
+                    __length = _fields[key].min_length
+                    if len(value) < __length:
+                        _obj_wrong_params_field[ind]['min_length'] = f'Must be greater then {__length}'
 
                 _output[key] = value
 
         _errors_extra_fields = set(_fields) - _object_field_set
-        return _output, _errors_extra_fields, _obj_wrong_type_fields
+        return _output, _errors_extra_fields, _obj_wrong_type_fields, _obj_wrong_params_field
 
     @staticmethod
     def _is_iter(obj) -> bool:
@@ -58,8 +69,13 @@ class BaseSerializer:
         """
         _output['errors'] = {}
         for key, value in kwargs.items():
-            if value[0]:
-                _output['errors'].update({key: {tuple(value[0]): value[1]}})
+            if isinstance(value, list):
+                for ind, element in enumerate(value):
+                    if element:
+                        _output['errors'].update({key+f'_{ind}': element.items()})
+                continue
+            if value:
+                _output['errors'].update({key: list(value)})
 
     @classmethod
     def _serialize_many(cls, obj, _fields: dict) -> list:
@@ -81,10 +97,13 @@ class BaseSerializer:
             _output = []
             for ind, obj in enumerate(_data):
                 _output.append({})
-                _data, _errors_extra_fields, _errors_wrong_type_fields = cls._get_obj_fields_and_errors(obj, _fields)
+                _data, _errors_extra_fields, _errors_wrong_type_fields, _obj_wrong_params_field = \
+                    cls._get_obj_fields_and_errors(obj, _fields)
+
                 _output[ind] = _data
-                cls._add_error_info(_output[ind], extra_fields=(_errors_extra_fields, 'Does not exists!'),
-                                    wrong_type=(_errors_wrong_type_fields, 'Wrong type!'))
+                cls._add_error_info(_output[ind], extra_fields=_errors_extra_fields,
+                                    wrong_type=_errors_wrong_type_fields,
+                                    wrong_additional_params=_obj_wrong_params_field)
             return _output
 
     @classmethod
@@ -100,9 +119,12 @@ class BaseSerializer:
         except AttributeError:
             raise ManyError
 
-        _output, _errors_extra_fields, _errors_wrong_type_fields = cls._get_obj_fields_and_errors(_data, _fields)
-        cls._add_error_info(_output, extra_fields=(_errors_extra_fields, 'Does not exists!'),
-                            wrong_type=(_errors_wrong_type_fields, 'Wrong type!'))
+        _output, _errors_extra_fields, _errors_wrong_type_fields, _obj_wrong_params_field = \
+            cls._get_obj_fields_and_errors(_data, _fields)
+        cls._add_error_info(_output, extra_fields=_errors_extra_fields,
+                            wrong_type=_errors_wrong_type_fields,
+                            wrong_additional_params=_obj_wrong_params_field)
+
         return _output
 
     @classmethod
