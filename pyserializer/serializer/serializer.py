@@ -1,4 +1,5 @@
 from pyserializer.exception.exception import ManyError
+from pyserializer.validate.validate import Validate
 
 
 class BaseSerializer:
@@ -24,23 +25,17 @@ class BaseSerializer:
         _obj_wrong_params_field = [{} for _ in range(len(obj))]
         _output = {}
 
-        for ind, (key, value) in enumerate(obj.items()):
-            if key in _fields:
-                if not isinstance(_fields[key].type, type) or not isinstance(value, _fields[key].type):
-                    _obj_wrong_type_fields.add(key)
+        for ind, (_key, _value) in enumerate(obj.items()):
+            if _key in _fields:
+                if not isinstance(_fields[_key].type, type) or not isinstance(_value, _fields[_key].type):
+                    _obj_wrong_type_fields.add(_key)
                     continue
 
-                if hasattr(_fields[key], 'max_length') and _fields[key].max_length:
-                    __length = _fields[key].max_length
-                    if len(value) > __length:
-                        _obj_wrong_params_field[ind]['max_length'] = f'Must be less then {__length}'
+                _validate_errors = Validate.validate_errors(_fields[_key], _value)
+                for _error in _validate_errors:
+                    _obj_wrong_params_field[ind].update(_error)
 
-                if hasattr(_fields[key], 'min_length') and _fields[key].min_length:
-                    __length = _fields[key].min_length
-                    if len(value) < __length:
-                        _obj_wrong_params_field[ind]['min_length'] = f'Must be greater then {__length}'
-
-                _output[key] = value
+                _output[_key] = _value
 
         _errors_extra_fields = set(_fields) - _object_field_set
         return _output, _errors_extra_fields, _obj_wrong_type_fields, _obj_wrong_params_field
