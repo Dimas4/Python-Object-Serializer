@@ -67,7 +67,7 @@ class BaseSerializer:
             if isinstance(value, list):
                 for ind, element in enumerate(value):
                     if element:
-                        _output['errors'].update({key+f'_{ind}': element.items()})
+                        _output['errors'].update({list(_output.items())[ind][0]: dict(element.items())})
                 continue
             if value:
                 _output['errors'].update({key: list(value)})

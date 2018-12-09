@@ -8,7 +8,7 @@ class MySerializer(BaseSerializer):
     des = field.StringField(min_length=5)
 
 
-base1 = Base('haaaaaaaaaaaaaaaai', 'qqq')
+base1 = Base('haaaaaaaaaaaaaaaai', 'q')
 
 base_serializer = MySerializer()
 
