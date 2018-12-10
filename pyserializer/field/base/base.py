@@ -1,6 +1,5 @@
 class Base:
-    def __init__(self, type, value):
-        self.value = value
+    def __init__(self, type):
         self.__type = type
 
     @property

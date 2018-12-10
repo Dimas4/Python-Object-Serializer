@@ -52,9 +52,6 @@ class BaseSerializer:
                 _errors_extra_fields.remove(_field)
                 _output[_field] = _get_field_func(_prepared)
 
-        # for _obj_key in obj:
-        #     _fields[_obj_key].value = obj[_obj_key]
-
         return _output, _errors_extra_fields, _obj_wrong_type_fields, _obj_wrong_params_field
 
     @staticmethod
