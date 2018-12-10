@@ -13,6 +13,20 @@ class BaseSerializer:
         """
         return obj.__dict__
 
+    @staticmethod
+    def _get_extra_fiend_wth_func(_output, _fields, _errors_extra_fields):
+        _prepared = dict(_output)
+
+        for _field in set(_errors_extra_fields):
+            if _field.startswith('get_'):
+                _errors_extra_fields.remove(_field)
+
+            _get_field_func = _fields.get(f'get_{_field}')
+            if _get_field_func:
+                _errors_extra_fields.remove(_field)
+                _output[_field] = _get_field_func(_prepared)
+
+
     @classmethod
     def _get_obj_fields_and_errors(cls, obj, _fields: dict) -> tuple:
         """
@@ -21,7 +35,6 @@ class BaseSerializer:
         :param _fields:
         :return: The specific fields of an obj
         """
-
         _object_field_set = set(obj)
         _obj_wrong_type_fields = set()
         _obj_wrong_params_field = [{} for _ in range(len(obj))]
@@ -41,16 +54,7 @@ class BaseSerializer:
 
         _errors_extra_fields = set(_fields) - _object_field_set
 
-        _prepared = dict(_output)
-
-        for _field in set(_errors_extra_fields):
-            if _field.startswith('get_'):
-                _errors_extra_fields.remove(_field)
-
-            _get_field_func = _fields.get(f'get_{_field}')
-            if _get_field_func:
-                _errors_extra_fields.remove(_field)
-                _output[_field] = _get_field_func(_prepared)
+        cls._get_extra_fiend_wth_func(_output, _fields, _errors_extra_fields)
 
         return _output, _errors_extra_fields, _obj_wrong_type_fields, _obj_wrong_params_field
 
