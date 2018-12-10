@@ -13,4 +13,4 @@ class FieldFactory:
         _klass = cls._REGISTRY.get(name)
         if not _klass:
             raise NameError
-        return _klass(**kwargs)
+        return _klass(value=None, **kwargs)

@@ -6,7 +6,10 @@ from example.model.model import Base
 class MySerializer(BaseSerializer):
     name = FieldFactory.create('list', min_length=2)
     des = FieldFactory.create('string', min_length=5)
+    q = FieldFactory.create('string')
 
+    def get_q(self):
+        return 'q'
 
 base1 = Base([1, 2], 'qqqqqqq')
 

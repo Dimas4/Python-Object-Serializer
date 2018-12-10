@@ -13,14 +13,15 @@ class BaseSerializer:
         """
         return obj.__dict__
 
-    @staticmethod
-    def _get_obj_fields_and_errors(obj, _fields: dict) -> tuple:
+    @classmethod
+    def _get_obj_fields_and_errors(cls, obj, _fields: dict) -> tuple:
         """
         Gets all the specific fields of an obj
         :param obj:
         :param _fields:
         :return: The specific fields of an obj
         """
+
         _object_field_set = set(obj)
         _obj_wrong_type_fields = set()
         _obj_wrong_params_field = [{} for _ in range(len(obj))]
@@ -39,6 +40,18 @@ class BaseSerializer:
                 _output[_key] = _value
 
         _errors_extra_fields = set(_fields) - _object_field_set
+        for _field in set(_errors_extra_fields):
+            if _field.startswith('get_'):
+                _errors_extra_fields.remove(_field)
+
+            _get_field_func = _fields.get(f'get_{_field}')
+            if _get_field_func:
+                _errors_extra_fields.remove(_field)
+                _output[_field] = _get_field_func(cls)
+
+        # for _obj_key in obj:
+        #     _fields[_obj_key].value = obj[_obj_key]
+
         return _output, _errors_extra_fields, _obj_wrong_type_fields, _obj_wrong_params_field
 
     @staticmethod
