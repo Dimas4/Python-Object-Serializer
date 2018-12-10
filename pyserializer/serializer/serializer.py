@@ -40,6 +40,9 @@ class BaseSerializer:
                 _output[_key] = _value
 
         _errors_extra_fields = set(_fields) - _object_field_set
+
+        _prepared = dict(_output)
+
         for _field in set(_errors_extra_fields):
             if _field.startswith('get_'):
                 _errors_extra_fields.remove(_field)
@@ -47,7 +50,7 @@ class BaseSerializer:
             _get_field_func = _fields.get(f'get_{_field}')
             if _get_field_func:
                 _errors_extra_fields.remove(_field)
-                _output[_field] = _get_field_func(cls)
+                _output[_field] = _get_field_func(_prepared)
 
         # for _obj_key in obj:
         #     _fields[_obj_key].value = obj[_obj_key]

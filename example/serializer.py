@@ -7,9 +7,15 @@ class MySerializer(BaseSerializer):
     name = FieldFactory.create('list', min_length=2)
     des = FieldFactory.create('string', min_length=5)
     q = FieldFactory.create('string')
+    m = FieldFactory.create('string')
 
     def get_q(self):
+        print(self)
         return 'q'
+
+    def get_m(self):
+        print(self)
+
 
 base1 = Base([1, 2], 'qqqqqqq')
 
