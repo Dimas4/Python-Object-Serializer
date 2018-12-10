@@ -1,5 +1,6 @@
 from pyserializer.exception.exception import ManyError
 from pyserializer.validate.validate import Validate
+from pyserializer.field import field
 
 
 class BaseSerializer:

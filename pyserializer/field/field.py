@@ -1,8 +1,9 @@
 from .custom_base.sequence import SequenceBase
+from .fieldmodel.field import FieldFactory
 from .base.base import Base
 
 
-@Base.registry('string')
+@FieldFactory.registry('string')
 class StringField(Base):
     def __init__(self, max_length=None, min_length=None):
         self.max_length = max_length
@@ -10,25 +11,25 @@ class StringField(Base):
         super().__init__(str)
 
 
-@Base.registry('int')
+@FieldFactory.registry('int')
 class IntField(Base):
     def __init__(self):
         super().__init__(int)
 
 
-@Base.registry('tuple')
+@FieldFactory.registry('tuple')
 class TupleField(SequenceBase):
     def __init__(self, max_element_count=None, min_element_count=None):
         super().__init__(tuple, max_element_count, min_element_count)
 
 
-@Base.registry('list')
+@FieldFactory.registry('list')
 class ListField(SequenceBase):
     def __init__(self, max_element_count=None, min_element_count=None):
         super().__init__(list, max_element_count, min_element_count)
 
 
-@Base.registry('dict')
+@FieldFactory.registry('dict')
 class DictField(SequenceBase):
     def __init__(self, max_element_count=None, min_element_count=None):
         super().__init__(dict, max_element_count, min_element_count)
