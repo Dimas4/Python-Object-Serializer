@@ -1,10 +1,10 @@
 from pyserializer.serializer.serializer import BaseSerializer
-from pyserializer.field.fieldmodel.field import FieldFactory
+from pyserializer.field.field_factory.factory import FieldFactory
 from example.model.model import Base
 
 
 class MySerializer(BaseSerializer):
-    name = FieldFactory.create('list', min_element_count=5)
+    name = FieldFactory.create('list', min_length=2)
     des = FieldFactory.create('string', min_length=5)
 
 

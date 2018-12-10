@@ -1,14 +1,6 @@
 from .custom_base.sequence import SequenceBase
-from .fieldmodel.field import FieldFactory
+from pyserializer.field.field_factory.factory import FieldFactory
 from .base.base import Base
-
-
-@FieldFactory.registry('string')
-class StringField(Base):
-    def __init__(self, max_length=None, min_length=None):
-        self.max_length = max_length
-        self.min_length = min_length
-        super().__init__(str)
 
 
 @FieldFactory.registry('int')
@@ -17,19 +9,37 @@ class IntField(Base):
         super().__init__(int)
 
 
+@FieldFactory.registry('float')
+class FloatField(Base):
+    def __init__(self):
+        super().__init__(float)
+
+
+@FieldFactory.registry('string')
+class StringField(SequenceBase):
+    def __init__(self, max_length=None, min_length=None):
+        super().__init__(str, max_length, min_length)
+
+
 @FieldFactory.registry('tuple')
 class TupleField(SequenceBase):
-    def __init__(self, max_element_count=None, min_element_count=None):
-        super().__init__(tuple, max_element_count, min_element_count)
+    def __init__(self, max_length=None, min_length=None):
+        super().__init__(tuple, max_length, min_length)
 
 
 @FieldFactory.registry('list')
 class ListField(SequenceBase):
-    def __init__(self, max_element_count=None, min_element_count=None):
-        super().__init__(list, max_element_count, min_element_count)
+    def __init__(self, max_length=None, min_length=None):
+        super().__init__(list, max_length, min_length)
 
 
 @FieldFactory.registry('dict')
 class DictField(SequenceBase):
-    def __init__(self, max_element_count=None, min_element_count=None):
-        super().__init__(dict, max_element_count, min_element_count)
+    def __init__(self, max_length=None, min_length=None):
+        super().__init__(dict, max_length, min_length)
+
+
+@FieldFactory.registry('set')
+class SetField(SequenceBase):
+    def __init__(self, max_length=None, min_length=None):
+        super().__init__(set, max_length, min_length)

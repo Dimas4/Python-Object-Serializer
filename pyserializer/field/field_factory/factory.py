@@ -10,7 +10,7 @@ class FieldFactory:
 
     @classmethod
     def create(cls, name, **kwargs):
-        klass = cls._REGISTRY[name]
-        if not klass:
+        _klass = cls._REGISTRY.get(name)
+        if not _klass:
             raise NameError
-        return klass(**kwargs)
+        return _klass(**kwargs)
