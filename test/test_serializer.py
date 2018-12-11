@@ -1,4 +1,4 @@
-from pyserializer.serializer.serializer import BaseSerializer
+from pyserializer.serializer.base.serializer import BaseSerializer
 
 
 class MySerializerAllFields(BaseSerializer):
