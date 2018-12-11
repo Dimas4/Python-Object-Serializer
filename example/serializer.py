@@ -25,3 +25,4 @@ base_serializer = MySerializer()
 
 # print(base_serializer.serialize([base1, base1], many=True))
 print(base_serializer.serialize(base1))
+# print(base_serializer.serialize(base1, fields=['name', 'des', 'func_field']))

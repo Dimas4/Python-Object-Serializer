@@ -36,6 +36,7 @@ class BaseSerializer:
                         _output[_field] = _fields[_field].func()
                     else:
                         _output[_field] = None
+                    _errors_extra_fields.remove(_field)
             except AttributeError:
                 pass
 
@@ -162,7 +163,9 @@ class BaseSerializer:
         :return: Serialized obj or array of objs
         """
         if fields:
-            _fields = set(fields)
+            _fields = {}
+            for _field in fields:
+                _fields[_field] = dict(cls.__dict__)[_field]
         elif len(cls.__dict__) > 2:
             cls_fields = dict(cls.__dict__)
             del cls_fields['__doc__']
