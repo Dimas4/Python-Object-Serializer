@@ -1,3 +1,4 @@
+from pyserializer.field.field_type.funtion import Function
 from pyserializer.exception.exception import ManyError
 from pyserializer.validate.validate import Validate
 from pyserializer.field import field
@@ -25,7 +26,13 @@ class BaseSerializer:
             if _get_field_func:
                 _errors_extra_fields.remove(_field)
                 _output[_field] = _get_field_func(_prepared)
+                continue
 
+            try:
+                if _fields[_field].type is Function:
+                    _output[_field] = _fields[_field]()
+            except AttributeError:
+                pass
 
     @classmethod
     def _get_obj_fields_and_errors(cls, obj, _fields: dict) -> tuple:

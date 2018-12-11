@@ -1,6 +1,14 @@
-from .custom_base.sequence import SequenceBase
 from pyserializer.field.field_factory.factory import FieldFactory
+from .custom_base.sequence import SequenceBase
+from .custom_base.function import FunctionBase
+from .field_type.funtion import Function
 from .base.base import Base
+
+
+@FieldFactory.registry('function')
+class FunctionField(FunctionBase):
+    def __init__(self, func):
+        super().__init__(Function, func)
 
 
 @FieldFactory.registry('int')
