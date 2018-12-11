@@ -30,7 +30,12 @@ class BaseSerializer:
 
             try:
                 if _fields[_field].type is Function:
-                    _output[_field] = _fields[_field]()
+                    if callable(_fields[_field]):
+                        _output[_field] = _fields[_field]()
+                    elif hasattr(_fields[_field], 'func'):
+                        _output[_field] = _fields[_field].func()
+                    else:
+                        _output[_field] = None
             except AttributeError:
                 pass
 

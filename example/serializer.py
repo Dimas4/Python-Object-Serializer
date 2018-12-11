@@ -1,5 +1,5 @@
-from pyserializer.serializer.serializer import BaseSerializer
 from pyserializer.field.field_factory.factory import FieldFactory
+from pyserializer.serializer.serializer import BaseSerializer
 from example.model.model import Base
 
 

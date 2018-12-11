@@ -16,5 +16,4 @@ class Validate:
                 __length = field.min_length
                 if len(value) < __length:
                     result.append({'min_length': f'Length must be greater or equal to {__length}'})
-
         return result
