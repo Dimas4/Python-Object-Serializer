@@ -1,5 +1,5 @@
-from pyserializer.field.field_factory.factory import FieldFactory
 from pyserializer.serializer.serializer import BaseSerializer
+from pyserializer.schema.schema import Schema
 from example.model.model import Base
 
 
@@ -8,10 +8,10 @@ def data():
 
 
 class MySerializer(BaseSerializer):
-    name = FieldFactory.create('list', min_length=2)
-    des = FieldFactory.create('string', min_length=5)
-    additional = FieldFactory.create('string')
-    func_field = FieldFactory.create('function', func=data)
+    name = Schema.create('list', min_length=2)
+    des = Schema.create('string', min_length=5)
+    additional = Schema.create('string')
+    func_field = Schema.create('function', func=data)
 
     def get_additional(self):
         if self['name'] == [1, 2]:

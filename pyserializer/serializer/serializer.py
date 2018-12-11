@@ -161,7 +161,6 @@ class BaseSerializer:
         :param fields:
         :return: Serialized obj or array of objs
         """
-
         if fields:
             _fields = set(fields)
         elif len(cls.__dict__) > 2:
@@ -172,7 +171,6 @@ class BaseSerializer:
             _fields = cls_fields
         else:
             _fields = None
-
         if many:
             return cls._serialize_many(obj, _fields)
         return cls._serialize_one(obj, _fields)
