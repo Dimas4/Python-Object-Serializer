@@ -14,8 +14,29 @@ class BaseSerializer:
         """
         return obj.__dict__
 
-    @staticmethod
-    def _get_extra_fiend_wth_func(_output, _fields, _errors_extra_fields):
+    @classmethod
+    def _add_func_type_field(cls, _fields: dict, _field: str, _output: dict) -> bool or None:
+        try:
+            if _fields[_field].type is Function:
+                if callable(_fields[_field]):
+                    _output[_field] = _fields[_field]()
+                elif hasattr(_fields[_field], 'func'):
+                    _output[_field] = _fields[_field].func()
+                else:
+                    _output[_field] = None
+                return True
+        except AttributeError:
+            pass
+
+    @classmethod
+    def _get_extra_field_with_func(cls, _output: dict, _fields: dict, _errors_extra_fields: set) -> None:
+        """
+        Adds func type to _output
+        :param _output:
+        :param _fields:
+        :param _errors_extra_fields:
+        :return: _output
+        """
         _prepared = dict(_output)
 
         for _field in set(_errors_extra_fields):
@@ -28,17 +49,8 @@ class BaseSerializer:
                 _output[_field] = _get_field_func(_prepared)
                 continue
 
-            try:
-                if _fields[_field].type is Function:
-                    if callable(_fields[_field]):
-                        _output[_field] = _fields[_field]()
-                    elif hasattr(_fields[_field], 'func'):
-                        _output[_field] = _fields[_field].func()
-                    else:
-                        _output[_field] = None
-                    _errors_extra_fields.remove(_field)
-            except AttributeError:
-                pass
+            if cls._add_func_type_field(_fields, _field, _output):
+                _errors_extra_fields.remove(_field)
 
     @classmethod
     def _get_obj_fields_and_errors(cls, obj, _fields: dict) -> tuple:
@@ -67,7 +79,7 @@ class BaseSerializer:
 
         _errors_extra_fields = set(_fields) - _object_field_set
 
-        cls._get_extra_fiend_wth_func(_output, _fields, _errors_extra_fields)
+        cls._get_extra_field_with_func(_output, _fields, _errors_extra_fields)
 
         return _output, _errors_extra_fields, _obj_wrong_type_fields, _obj_wrong_params_field
 
